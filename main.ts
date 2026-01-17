@@ -7,6 +7,25 @@ function Forward (Time_ms: number, Left_Speed: number, Right_Speed: number) {
     wuKong.stopAllMotor()
     status = 0
 }
+function FailSafe () {
+    failSafeIndex = robotMovements.length - 1
+    while (robotMovements.length > 0) {
+        if (robotMovements[failSafeIndex] == "FORWARD") {
+            Forward(400, 25, 25)
+            robotMovements.pop()
+            failSafeIndex += -1
+        } else if (robotMovements[failSafeIndex] == "LEFT") {
+            Forward(660, -150, 0)
+            robotMovements.pop()
+            failSafeIndex += -1
+        } else if (robotMovements[failSafeIndex] == "RIGHT") {
+            Forward(648, 0, -140)
+            robotMovements.pop()
+            failSafeIndex += -1
+        }
+    }
+    failSafeEngaged = 1
+}
 input.onButtonPressed(Button.AB, function () {
     failSafeIndex = robotMovements.length - 1
     while (robotMovements.length > 0) {
@@ -61,23 +80,11 @@ failSafeEngaged = 0
 robotMovements = ["START"]
 basic.forever(function () {
     if (input.runningTime() - lastConfirmation > 5000 && failSafeEngaged == 0 && failSafeEngagable == 1) {
-        failSafeIndex = robotMovements.length - 1
-        while (robotMovements.length > 0) {
-            if (robotMovements[failSafeIndex] == "FORWARD") {
-                Forward(400, 25, 25)
-                robotMovements.pop()
-                failSafeIndex += -1
-            } else if (robotMovements[failSafeIndex] == "LEFT") {
-                Forward(660, -140, 0)
-                robotMovements.pop()
-                failSafeIndex += -1
-            } else if (robotMovements[failSafeIndex] == "RIGHT") {
-                Forward(648, 0, -140)
-                robotMovements.pop()
-                failSafeIndex += -1
-            }
-        }
-        failSafeEngaged = 1
+        FailSafe()
+        music.play(music.stringPlayable("A G F G A A A G ", 120), music.PlaybackMode.UntilDone)
+        music.play(music.stringPlayable("G G A C5 C5 A G F ", 120), music.PlaybackMode.UntilDone)
+        music.play(music.stringPlayable("G A A A G G A G ", 120), music.PlaybackMode.UntilDone)
+        music.play(music.stringPlayable("F F F F F F F F ", 120), music.PlaybackMode.UntilDone)
     }
 })
 basic.forever(function () {
